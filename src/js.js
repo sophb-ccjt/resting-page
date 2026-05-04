@@ -157,4 +157,4 @@ window.addEventListener('resize', ()=>{
     const wrapper = document.body;
     const scale = Math.min(window.innerWidth / wrapper.scrollWidth, window.innerHeight / wrapper.scrollHeight);
     wrapper.style.transform = `scale(${scale})`;
-})
+});
