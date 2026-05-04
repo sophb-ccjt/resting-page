@@ -10,3 +10,16 @@ body {
     color: #bbb;
     font-size: 16px;
 }
+
+a[href] {
+    color: #06f;
+}
+a[href]:hover {
+    color: #08f;    
+}
+a[href]:visited {
+    color: #60f;
+}
+a[href]:visited:hover {
+    color: #80f;
+}
