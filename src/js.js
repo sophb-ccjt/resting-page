@@ -1,0 +1,154 @@
+// helpers
+function debounce(func, ms) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+            func.apply(this, args);
+        }, ms);
+    }
+}
+function displayTime(ms) {
+    if (ms < 1e3) {
+        return `${ms}ms`;
+    } else if (ms < 60e3) {
+        return `${Math.trunc(ms / 1e3)}s`
+    } else if (ms < 3.6e6) {
+        return `${Math.trunc(ms / 60e3)}m`
+    } else if (ms < 8.64e7) {
+        return `${Math.trunc(ms / (60e3 * 60))}h`
+    } else if (ms < 6.048e8) {
+        return `${(ms / 8.64e7).toFixed(2)}d`
+    } else {
+        return `${(ms / (60e3 * 60 * 24 * 7)).toFixed(2)}w`
+    }
+}
+
+// element variables
+const batteryPercentage = document.getElementById('battery-percent');
+const batteryIsCharging = document.getElementById('battery-ischarging');
+const batteryChargeType = document.getElementById('battery-chargetype');
+const batteryChargeTime = document.getElementById('battery-chargetime');
+const restingTime = document.getElementById('resting-time');
+const timeAndDate = document.getElementById('time-and-date');
+const isOnline = document.getElementById('is-online');
+const connectionType = document.getElementById('connection-type');
+const effectiveType = document.getElementById('effective-type');
+const pingTime = document.getElementById('ping');
+const fpsCounter = document.getElementById('fps');
+const heapUsed = document.getElementById('heap-used');
+
+// interactions
+let lastMouseMove = Date.now();
+let restTime = 0;
+document.addEventListener('mousemove', ()=>{
+    lastMouseMove = Date.now();
+    restTime = 0;
+});
+
+// battery
+navigator.getBattery().then(battery => {
+    const updateBatteryPercentage = ()=>batteryPercentage.textContent = Math.trunc(battery.level * 100);
+    const updateBatteryCharging = ()=>{
+        batteryIsCharging.textContent = battery.charging ? 'yes' : 'no';
+        updateBatteryStatus();
+    }
+    const updateBatteryStatus = ()=>{
+        batteryChargeType.textContent = battery.charging ? 'is full' : 'drains';
+        if (!isFinite(battery.chargingTime) && !isFinite(battery.dischargingTime))
+            batteryChargeTime.textContent = 'Estimating...';
+        else
+            batteryChargeTime.textContent = displayTime(Math.min(battery.chargingTime, battery.dischargingTime) * 1e3);
+    }
+
+    updateBatteryPercentage();
+    updateBatteryCharging();
+    updateBatteryStatus();
+
+    battery.onlevelchange = updateBatteryPercentage;
+    battery.onchargingchange = updateBatteryCharging;
+    battery.ondischargingtimechange = battery.onchargingtimechange = updateBatteryStatus;
+});
+
+// networking
+isOnline.textContent = navigator.onLine ? 'yes' : 'no';
+connectionType.textContent = navigator.connection.type;
+effectiveType.textContent = navigator.connection.effectiveType;
+let lastOnline = navigator.onLine;
+navigator.connection.addEventListener('change', ()=>{
+    if (navigator.onLine && !lastOnline) ping();
+    lastOnline = navigator.onLine;
+    isOnline.textContent = navigator.onLine ? 'yes' : 'no';
+    connectionType.textContent = navigator.connection.type;
+    effectiveType.textContent = navigator.connection.effectiveType;
+});
+const ping = async (...urls)=>{
+    if (urls.length === 0) urls = [
+        'https://httpbin.org/',
+        'http://dns.google/',
+        'https://dns.opendns.com',
+    ];
+    for (const url of urls) {
+        pingTime.textContent = `Pinging '${url}'...`;
+        if (!navigator.onLine) {
+            pingTime.textContent = 'Unable to ping - Device has no access to internet';
+            return null;
+        }
+        const startTime = Date.now();
+        try {
+            await fetch(url);
+        } catch {
+            pingTime.textContent = 'Unable to ping - Fetch failed';
+            console.clear();
+            console.log('Console was cleared to remove fetch error bloat.')
+            continue;
+        }
+        const totalTime = Date.now() - startTime;
+        pingTime.textContent = `${totalTime}ms`;
+        return totalTime;
+    }
+}
+setInterval(ping, 15e3);
+ping();
+
+// main loop
+let battery = {};
+let debuggingMode = true;
+let lastFpsMeasure = 0,
+    frame, fps;
+async function main() {
+    if (!document.hasFocus()) {
+        requestAnimationFrame(main);
+        return;
+    }
+    // cursor hiding
+    if (Date.now() - lastFpsMeasure >= 1e3) {
+        fps = frame;
+        fpsCounter.textContent = fps ?? 'Measuring...';
+        lastFpsMeasure = Date.now();
+        frame = 0;
+    } else {
+        frame += 1;
+    }
+    if (Date.now() - lastMouseMove >= 3e3) {
+        document.body.style.cursor = 'none';
+        restTime = Date.now() - lastMouseMove - 3e3;
+        restingTime.textContent = displayTime(restTime);
+    } else {
+        document.body.style.cursor = 'auto';
+        restTime = 0;
+        restingTime.textContent = 'Not resting';
+    }
+
+    // battery probe
+    if (debuggingMode && restTime < 60e3) battery = await navigator.getBattery();
+
+    // time and date
+    const now = new Date();
+    timeAndDate.textContent = `${now.toLocaleTimeString()} ${now.toLocaleDateString()}`;
+
+    // heap used
+    heapUsed.textContent = (performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit * 100).toFixed(2) + '%';
+    requestAnimationFrame(main);
+}
+main();
