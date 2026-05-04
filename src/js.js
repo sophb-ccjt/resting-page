@@ -117,19 +117,7 @@ let debuggingMode = true;
 let lastFpsMeasure = 0,
     frame, fps;
 async function main() {
-    if (!document.hasFocus()) {
-        requestAnimationFrame(main);
-        return;
-    }
     // cursor hiding
-    if (Date.now() - lastFpsMeasure >= 1e3) {
-        fps = frame;
-        fpsCounter.textContent = fps ?? 'Measuring...';
-        lastFpsMeasure = Date.now();
-        frame = 0;
-    } else {
-        frame += 1;
-    }
     if (Date.now() - lastMouseMove >= 3e3) {
         document.body.style.cursor = 'none';
         restTime = Date.now() - lastMouseMove - 3e3;
@@ -138,6 +126,22 @@ async function main() {
         document.body.style.cursor = 'auto';
         restTime = 0;
         restingTime.textContent = 'Not resting';
+    }
+
+    // short-circuit for optimization
+    if (!document.hasFocus()) {
+        requestAnimationFrame(main);
+        return;
+    }
+
+    // fps
+    if (Date.now() - lastFpsMeasure >= 1e3) {
+        fps = frame;
+        fpsCounter.textContent = fps ?? 'Measuring...';
+        lastFpsMeasure = Date.now();
+        frame = 0;
+    } else {
+        frame += 1;
     }
 
     // battery probe
