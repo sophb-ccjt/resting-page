@@ -10,6 +10,12 @@ body {
     color: #bbb;
     font-size: 16px;
 }
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #ccc;
+        color: #000;
+    }
+}
 
 a[href] {
     color: #06f;
