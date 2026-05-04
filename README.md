@@ -6,7 +6,9 @@ note that this may only work with chrome, and on certain devices, this is NOT ma
 
 if you want to make the site usable for yourself, clone the repository and make your own changes
 
-the page's source code is in the [`/src`](/src/index.html) folder
+the page's source code is in the [`/src`](/src/) folder
+
+you can visit the hosted page by [clicking here](https://resting-page.vercel.app/).
 
 ## info you'll see
 
