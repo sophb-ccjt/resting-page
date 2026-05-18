@@ -133,8 +133,10 @@ async function updateCheck() {
             ).text()
         )[0]?.sha;
 
-    if (lastSha == null) lastSha = latestSha;
-    else if (lastSha !== latestSha && navigator.onLine) location.reload();
+    if (lastSha == null)
+        lastSha = latestSha;
+    else if (lastSha !== latestSha && navigator.onLine)
+        location.reload();
 }
 updateCheck();
 setInterval(updateCheck, 60e3);
