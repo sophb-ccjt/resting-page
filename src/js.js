@@ -133,7 +133,6 @@ async function updateCheck() {
             ).text()
         )[0]?.sha;
 
-    console.log(latestSha);
     if (lastSha == null) lastSha = latestSha;
     else if (lastSha !== latestSha && navigator.onLine) location.reload();
 }
