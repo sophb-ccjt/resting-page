@@ -128,7 +128,7 @@ async function updateCheck() {
         JSON.parse(
             await (
                 await fetch(
-                    'https://api.github.com/repos/sophb-ccjt/resting-page/commits?per_page=1&sha=main?nocache=' + Math.random()
+                    'https://api.github.com/repos/sophb-ccjt/resting-page/commits?per_page=1&sha=main&nocache=' + Math.random()
                 )
             ).text()
         )[0]?.sha;
@@ -143,8 +143,7 @@ setTimeout(updateCheck, 60e3);
 // main loop
 let battery = {};
 let debuggingMode = true;
-let lastFpsMeasure = 0,
-    frame, fps;
+let lastFpsMeasure = 0, frame, fps;
 async function main() {
     // cursor hiding
     if (Date.now() - lastMouseMove >= 3e3) {
