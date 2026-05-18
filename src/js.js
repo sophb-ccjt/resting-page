@@ -121,6 +121,24 @@ const ping = async (...urls)=>{
 setInterval(ping, 15e3);
 ping();
 
+// check for updates
+let lastSha;
+async function updateCheck() {
+    const latestSha =
+        JSON.parse(
+            await (
+                await fetch(
+                    'https://api.github.com/repos/sophb-ccjt/resting-page/commits?per_page=1&sha=main'
+                )
+            ).text()
+        )[0]?.sha;
+
+    if (lastSha == null) {
+        lastSha = latestSha;
+        return;
+    } else if (lastSha !== latestSha && navigator.onLine) location.reload();
+}
+
 // main loop
 let battery = {};
 let debuggingMode = true;
