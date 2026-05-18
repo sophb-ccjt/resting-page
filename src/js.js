@@ -128,11 +128,12 @@ async function updateCheck() {
         JSON.parse(
             await (
                 await fetch(
-                    'https://api.github.com/repos/sophb-ccjt/resting-page/commits?per_page=1&sha=main'
+                    'https://api.github.com/repos/sophb-ccjt/resting-page/commits?per_page=1&sha=main?nocache=' + Math.random()
                 )
             ).text()
         )[0]?.sha;
 
+    console.log(latestSha);
     if (lastSha == null) lastSha = latestSha;
     else if (lastSha !== latestSha && navigator.onLine) location.reload();
 }
