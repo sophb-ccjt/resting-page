@@ -47,6 +47,7 @@ document.addEventListener('mousemove', ()=>{
 });
 
 // battery
+let estimateTimeout;
 navigator.getBattery().then(battery => {
     const updateBatteryPercentage = ()=>batteryPercentage.textContent = Math.trunc(battery.level * 100);
     const updateBatteryCharging = ()=>{
@@ -55,10 +56,19 @@ navigator.getBattery().then(battery => {
     }
     const updateBatteryStatus = ()=>{
         batteryChargeType.textContent = battery.charging ? 'is full' : 'drains';
-        if (!isFinite(battery.chargingTime) && !isFinite(battery.dischargingTime))
+        if (!isFinite(battery.chargingTime) && !isFinite(battery.dischargingTime)) {
             batteryChargeTime.textContent = 'Estimating...';
-        else
+            clearTimeout(estimateTimeout);
+            estimateTimeout = setTimeout(()=>{
+                batteryChargeTime.textContent = 'Estimating... (Giving up in 5 seconds...)';
+                estimateTimeout = setTimeout(()=>{
+                    batteryChargeTime.textContent = 'Could not estimate battery life :(';
+                });
+            }, 10e3);
+        } else {
+            clearTimeout(estimateTimeout);
             batteryChargeTime.textContent = displayTime(Math.min(battery.chargingTime, battery.dischargingTime) * 1e3);
+        }
     }
 
     updateBatteryPercentage();
