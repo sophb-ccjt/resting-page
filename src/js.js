@@ -133,11 +133,11 @@ async function updateCheck() {
             ).text()
         )[0]?.sha;
 
-    if (lastSha == null) {
-        lastSha = latestSha;
-        return;
-    } else if (lastSha !== latestSha && navigator.onLine) location.reload();
+    if (lastSha == null) lastSha = latestSha;
+    else if (lastSha !== latestSha && navigator.onLine) location.reload();
 }
+updateCheck();
+setTimeout(updateCheck, 60e3);
 
 // main loop
 let battery = {};
