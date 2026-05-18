@@ -60,11 +60,11 @@ navigator.getBattery().then(battery => {
             batteryChargeTime.textContent = 'Estimating...';
             clearTimeout(estimateTimeout);
             estimateTimeout = setTimeout(()=>{
-                batteryChargeTime.textContent = 'Estimating... (Giving up in 5 seconds...)';
+                batteryChargeTime.textContent = 'Estimating... (Giving up in 10 seconds...)';
                 estimateTimeout = setTimeout(()=>{
                     batteryChargeTime.textContent = `Could not estimate battery ${battery.charging ? 'charge' : 'discharge'} time :(`;
-                }, 5e3);
-            }, 10e3);
+                }, 10e3);
+            }, 20e3);
         } else {
             clearTimeout(estimateTimeout);
             batteryChargeTime.textContent = displayTime(Math.min(battery.chargingTime, battery.dischargingTime) * 1e3);
